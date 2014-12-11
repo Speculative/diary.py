@@ -17,6 +17,10 @@ DEFAULT_CONFIG = {
 def get_args():
     parser = argparse.ArgumentParser(description="Command line diary")
     parser.add_argument("-l", "--list", action="store_true", help="List entries")
+    parser.add_argument("-e", "--edit", action="store", nargs="?",
+        const=default_entry_name(), help="--edit [entry]")
+    parser.add_argument("-v", "--view", action="store", nargs="?",
+        const=default_entry_name(), help="--view [entry]")
     return parser.parse_args(sys.argv[1:])
 
 def get_config():
@@ -33,13 +37,27 @@ def default_entry_name():
 
 def edit_entry(entry_name = default_entry_name()):
     global CONFIG
-    print type(CONFIG)
-    print CONFIG
+
     entry_path = os.path.join(DIARY_DIR, entry_name)
     if ("editor" in CONFIG):
         subprocess.call([CONFIG["editor"], entry_path])
     else:
         subprocess.call([DEFAULT_CONFIG["editor"], entry_path])
+
+def list_entries():
+    entries = [entry for entry in os.listdir(DIARY_DIR)
+        if os.path.isfile(os.path.join(DIARY_DIR, entry))
+        and entry != CONFIG_FILE]
+    for entry in entries:
+        print entry
+
+def view_entry(entry_name = default_entry_name()):
+    entry_path = os.path.join(DIARY_DIR, entry_name)
+    with open(entry_path) as f:
+        line = f.readline()
+        while line:
+            print line
+            line = f.readline()
 
 def main():
     global CONFIG
@@ -51,7 +69,11 @@ def main():
         os.mkdir(DIARY_DIR)
 
     if args.list:
-        return
+        list_entries()
+    elif args.view:
+        view_entry(args.view)
+    elif args.edit:
+        edit_entry(args.edit)
     else:
         edit_entry()
 
