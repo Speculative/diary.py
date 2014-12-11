@@ -53,6 +53,9 @@ def list_entries():
 
 def view_entry(entry_name = default_entry_name()):
     entry_path = os.path.join(DIARY_DIR, entry_name)
+    if not os.path.isfile(entry_path):
+        print "No entry for " + entry_name
+        return
     with open(entry_path) as f:
         line = f.readline()
         while line:
