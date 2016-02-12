@@ -52,7 +52,7 @@ def edit_entry(entry_name = default_entry_name()):
         subprocess.call([DEFAULT_CONFIG["editor"], entry_path])
 
 def list_entries():
-    entries = [entry for entry in os.listdir(DIARY_DIR)
+    entries = [entry for entry in sorted(os.listdir(DIARY_DIR))
         if os.path.isfile(os.path.join(DIARY_DIR, entry))
         and entry != CONFIG_FILE]
     for entry in entries:
@@ -99,12 +99,18 @@ def parse_entry_name(entry_name):
             year = datetime.date.today().year
             month, day = entry_name.split(" ")
             month = month.upper()
-            month = MONTHS.index(month) + 1
+            for m in range(len(MONTHS)):
+                if MONTHS[m].startswith(month):
+                    month = m + 1
+                    break
             return "%04d-%02d-%02d" % (year, month, int(day))
         elif entry_name.count(" ") == 2:
             month, day, year = entry_name.split(" ")
             month = month.upper()
-            month = MONTHS.index(month) + 1
+            for m in range(len(MONTHS)):
+                if MONTHS[m].startswith(month):
+                    month = m + 1
+                    break
             return "%04d-%02d-%02d" % (year, month, int(day))
         else:
             print "Unrecognized date format!"
